@@ -11,7 +11,7 @@ import { useCurrentProfile } from '@/lib/queries/profiles'
 import { BlockDetailModal } from './BlockDetailModal'
 import { toast } from 'sonner'
 
-export function CalendarView({ userId: overrideUserId }: { userId?: string } = {}) {
+export function CalendarView({ userId: overrideUserId }: { userId?: string }) {
   const { data: profile } = useCurrentProfile()
   const effectiveUserId = overrideUserId ?? profile?.id
   const { data: blocks = [] } = useCalendarBlocks(effectiveUserId)
