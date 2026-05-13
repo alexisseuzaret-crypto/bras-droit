@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 import type { Database } from '@/lib/supabase/database.types'
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const cookieStore = await cookies()
   const allCookies = cookieStore.getAll()
   const authCookies = allCookies.filter(c => c.name.includes('supabase') || c.name.includes('sb-'))
@@ -24,12 +24,22 @@ export async function GET(req: NextRequest) {
     }
   )
 
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+  let profileResult = null
+  let profileError = null
+  if (user) {
+    const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+    profileResult = data
+    profileError = error?.message ?? null
+  }
 
   return NextResponse.json({
     user: user ? { id: user.id, email: user.email } : null,
-    error: error?.message ?? null,
-    authCookies: authCookies.map(c => ({ name: c.name, valueLength: c.value.length, valueStart: c.value.substring(0, 50) })),
-    totalCookies: allCookies.length,
+    userError: userError?.message ?? null,
+    profile: profileResult,
+    profileError,
+    authCookiesCount: authCookies.length,
+    authCookies: authCookies.map(c => ({ name: c.name, valueLength: c.value.length })),
   })
 }
