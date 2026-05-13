@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
-import type { Profile } from '@/lib/supabase/database.types'
+import type { Profile, Role } from '@/lib/supabase/database.types'
 
 export function useCurrentProfile() {
   const supabase = createClient()
@@ -39,10 +39,26 @@ export function useUpdateProfileRole() {
   const supabase = createClient()
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, role }: { id: string; role: 'manager' | 'bras_droit' }) => {
+    mutationFn: async ({ id, role }: { id: string; role: Role }) => {
       const { error } = await supabase.from('profiles').update({ role }).eq('id', id)
       if (error) throw error
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['profiles'] }),
+  })
+}
+
+export function useManagerCandidates() {
+  const supabase = createClient()
+  return useQuery({
+    queryKey: ['profiles', 'manager-candidates'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .neq('role', 'bras_droit')
+        .order('full_name')
+      if (error) throw error
+      return data as Profile[]
+    },
   })
 }

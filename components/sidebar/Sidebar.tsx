@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutGrid, Calendar, BarChart2, Settings, ListTodo } from 'lucide-react'
+import { LayoutGrid, Calendar, BarChart2, Settings, ListTodo, Users } from 'lucide-react'
 import { SidebarFilter } from './SidebarFilter'
 import { SidebarFooter } from './SidebarFooter'
 import { cn } from '@/lib/utils'
@@ -17,14 +17,17 @@ export function Sidebar({ profile }: { profile: Profile }) {
   const { data: categories = [] } = useCategoriesWithCount()
   const { data: profiles = [] } = useAllProfiles()
 
+  const canSeeOverview = ['direction', 'conseiller_senior'].includes(profile.role)
+  const canSeeAdmin = profile.role === 'direction'
+
   const navItems = [
     { href: '/kanban', icon: LayoutGrid, label: 'Kanban' },
     { href: '/calendar', icon: Calendar, label: 'Calendrier' },
-    ...(profile.role === 'manager' ? [
-      { href: '/dashboard', icon: BarChart2, label: 'Dashboard' },
-      { href: '/admin/categories', icon: Settings, label: 'Admin' },
-    ] : []),
+    ...(canSeeOverview ? [{ href: '/overview', icon: BarChart2, label: "Vue d'ensemble" }] : []),
+    ...(canSeeAdmin ? [{ href: '/admin/categories', icon: Settings, label: 'Admin' }] : []),
   ]
+
+  const otherProfiles = profiles.filter(p => p.id !== profile.id)
 
   return (
     <aside className="w-[280px] flex-shrink-0 bg-mia-900 flex flex-col h-screen">
@@ -77,10 +80,35 @@ export function Sidebar({ profile }: { profile: Profile }) {
         <div>
           <p className="text-xs font-semibold text-mia-500 uppercase tracking-wider px-3 mb-1">Assigné à</p>
           <SidebarFilter paramKey="assignee" paramValue="me" label="Moi" />
-          {profiles.filter(p => p.id !== profile.id).map(p => (
+          {otherProfiles.map(p => (
             <SidebarFilter key={p.id} paramKey="assignee" paramValue={p.id} label={p.full_name} />
           ))}
         </div>
+
+        {/* Équipe (visible pour direction + conseiller_senior) */}
+        {canSeeOverview && otherProfiles.length > 0 && (
+          <div>
+            <p className="text-xs font-semibold text-mia-500 uppercase tracking-wider px-3 mb-1">Équipe</p>
+            {otherProfiles.map(p => (
+              <Link
+                key={p.id}
+                href={`/team/${p.id}`}
+                className={cn(
+                  'flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors',
+                  pathname === `/team/${p.id}` ? 'bg-mia-700 text-white' : 'text-white/70 hover:bg-mia-800 hover:text-white'
+                )}
+              >
+                <span
+                  className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium text-white flex-shrink-0"
+                  style={{ backgroundColor: p.avatar_color }}
+                >
+                  {p.full_name.charAt(0).toUpperCase()}
+                </span>
+                <span className="truncate">{p.full_name}</span>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Navigation */}

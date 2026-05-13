@@ -21,15 +21,20 @@ import { toast } from 'sonner'
 const STATUSES = ['todo', 'in_progress', 'done'] as const
 
 interface KanbanBoardProps {
-  filters: { status?: string; priority?: string; category?: string; assignee?: string }
-  onTaskClick: (task: TaskWithRelations) => void
-  onAddTask: (status: 'todo' | 'in_progress' | 'done') => void
+  filters?: { status?: string; priority?: string; category?: string; assignee?: string }
+  onTaskClick?: (task: TaskWithRelations) => void
+  onAddTask?: (status: 'todo' | 'in_progress' | 'done') => void
   onOpenCreate?: () => void
+  readOnly?: boolean
+  userId?: string
 }
 
-export function KanbanBoard({ filters, onTaskClick, onAddTask, onOpenCreate }: KanbanBoardProps) {
+export function KanbanBoard({ filters = {}, onTaskClick, onAddTask, onOpenCreate, readOnly, userId }: KanbanBoardProps) {
   const { data: profile } = useCurrentProfile()
-  const { data: tasks = [], isLoading } = useTasks({ ...filters, userId: profile?.id })
+  const effectiveFilters = userId
+    ? { ...filters, assignee: userId }
+    : { ...filters, userId: profile?.id }
+  const { data: tasks = [], isLoading } = useTasks(effectiveFilters)
   const reorderTasks = useReorderTasks()
   const [activeTask, setActiveTask] = useState<TaskWithRelations | null>(null)
 
@@ -48,11 +53,13 @@ export function KanbanBoard({ filters, onTaskClick, onAddTask, onOpenCreate }: K
   }, [onOpenCreate])
 
   function handleDragStart({ active }: DragStartEvent) {
+    if (readOnly) return
     const task = tasks.find(t => t.id === active.id)
     if (task) setActiveTask(task)
   }
 
   async function handleDragEnd({ active, over }: DragEndEvent) {
+    if (readOnly) return
     setActiveTask(null)
     if (!over) return
     const draggedTask = tasks.find(t => t.id === active.id)
@@ -104,14 +111,18 @@ export function KanbanBoard({ filters, onTaskClick, onAddTask, onOpenCreate }: K
             key={status}
             status={status}
             tasks={tasksByStatus(status)}
-            onTaskClick={onTaskClick}
-            onAddTask={onAddTask}
+            onTaskClick={onTaskClick ?? (() => {})}
+            onAddTask={onAddTask ?? (() => {})}
+            readOnly={readOnly}
+            currentUserId={profile?.id}
           />
         ))}
       </div>
-      <DragOverlay>
-        {activeTask && <TaskCard task={activeTask} onClick={() => {}} />}
-      </DragOverlay>
+      {!readOnly && (
+        <DragOverlay>
+          {activeTask && <TaskCard task={activeTask} onClick={() => {}} currentUserId={profile?.id} />}
+        </DragOverlay>
+      )}
     </DndContext>
   )
 }

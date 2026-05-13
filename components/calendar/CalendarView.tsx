@@ -19,15 +19,18 @@ export function CalendarView() {
   const [selectedBlock, setSelectedBlock] = useState<CalendarBlockWithTask | null>(null)
   const calRef = useRef<FullCalendar>(null)
 
-  const events = blocks.map(b => ({
-    id: b.id,
-    title: b.task.title,
-    start: b.start_at,
-    end: b.end_at,
-    backgroundColor: b.task.category?.color ?? '#5C6BAA',
-    borderColor: b.task.category?.color ?? '#5C6BAA',
-    extendedProps: { blockId: b.id },
-  }))
+  const events = blocks.map(b => {
+    const isOtherPrivate = b.is_private && b.user_id !== profile?.id
+    return {
+      id: b.id,
+      title: isOtherPrivate ? 'Indisponible' : b.task.title,
+      start: b.start_at,
+      end: b.end_at,
+      backgroundColor: isOtherPrivate ? '#9CA3AF' : (b.task.category?.color ?? '#5C6BAA'),
+      borderColor: isOtherPrivate ? '#9CA3AF' : (b.task.category?.color ?? '#5C6BAA'),
+      extendedProps: { blockId: b.id, isPrivate: isOtherPrivate },
+    }
+  })
 
   const handleDrop = useCallback(async (info: DropArg) => {
     if (!profile) return
@@ -62,6 +65,7 @@ export function CalendarView() {
   }, [updateBlock])
 
   const handleEventClick = useCallback((info: EventClickArg) => {
+    if (info.event.extendedProps.isPrivate) return
     const blockId = info.event.extendedProps.blockId
     const block = blocks.find(b => b.id === blockId)
     if (block) setSelectedBlock(block)

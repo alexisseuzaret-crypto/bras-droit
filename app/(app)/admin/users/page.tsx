@@ -14,7 +14,7 @@ export default async function UsersPage() {
     .eq('id', user.id)
     .single() as unknown as { data: Profile | null }
 
-  if (profile?.role !== 'manager') redirect('/kanban')
+  if (profile?.role !== 'direction') redirect('/kanban')
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6">

@@ -4,6 +4,8 @@ import { useEffect } from 'react'
 import type { CalendarBlock } from '@/lib/supabase/database.types'
 
 export type CalendarBlockWithTask = CalendarBlock & {
+  user_id: string
+  is_private: boolean
   task: {
     id: string
     title: string
@@ -21,7 +23,7 @@ export function useCalendarBlocks(userId?: string) {
     queryFn: async () => {
       let q = supabase
         .from('calendar_blocks')
-        .select('*, task:tasks(id, title, status, category:categories(color, name))')
+        .select('*, is_private, user_id, task:tasks(id, title, status, category:categories(color, name))')
         .order('start_at')
       if (userId) q = q.eq('user_id', userId)
       const { data, error } = await q

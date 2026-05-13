@@ -9,7 +9,8 @@ export interface Database {
           email: string
           full_name: string
           avatar_color: string
-          role: 'manager' | 'bras_droit'
+          role: 'direction' | 'conseiller_senior' | 'responsable_bu' | 'sales' | 'bras_droit'
+          manager_id: string | null
           created_at: string
         }
         Insert: {
@@ -17,7 +18,8 @@ export interface Database {
           email: string
           full_name: string
           avatar_color?: string
-          role?: 'manager' | 'bras_droit'
+          role?: 'direction' | 'conseiller_senior' | 'responsable_bu' | 'sales' | 'bras_droit'
+          manager_id?: string | null
           created_at?: string
         }
         Update: Partial<Database['bras_droit']['Tables']['profiles']['Insert']>
@@ -58,6 +60,7 @@ export interface Database {
           actual_minutes: number
           position: number
           completed_at: string | null
+          is_private: boolean
           created_at: string
           updated_at: string
         }
@@ -75,6 +78,7 @@ export interface Database {
           actual_minutes?: number
           position?: number
           completed_at?: string | null
+          is_private?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -109,6 +113,7 @@ export interface Database {
           start_at: string
           end_at: string
           notes: string | null
+          is_private: boolean
           created_at: string
         }
         Insert: {
@@ -118,6 +123,7 @@ export interface Database {
           start_at: string
           end_at: string
           notes?: string | null
+          is_private?: boolean
           created_at?: string
         }
         Update: Partial<Database['bras_droit']['Tables']['calendar_blocks']['Insert']>
@@ -150,11 +156,16 @@ export interface Database {
         Args: Record<string, never>
         Returns: string
       }
+      user_can_see: {
+        Args: { target_user_id: string }
+        Returns: boolean
+      }
     }
   }
 }
 
 export type Profile = Database['bras_droit']['Tables']['profiles']['Row']
+export type Role = Profile['role']
 export type Category = Database['bras_droit']['Tables']['categories']['Row']
 export type Task = Database['bras_droit']['Tables']['tasks']['Row']
 export type TaskStep = Database['bras_droit']['Tables']['task_steps']['Row']

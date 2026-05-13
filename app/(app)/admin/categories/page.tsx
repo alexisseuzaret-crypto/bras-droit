@@ -14,7 +14,7 @@ export default async function CategoriesPage() {
     .eq('id', user.id)
     .single() as unknown as { data: Profile | null }
 
-  if (profile?.role !== 'manager') redirect('/kanban')
+  if (profile?.role !== 'direction') redirect('/kanban')
 
   return <CategoriesClient />
 }

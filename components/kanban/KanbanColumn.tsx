@@ -15,9 +15,11 @@ interface KanbanColumnProps {
   tasks: TaskWithRelations[]
   onTaskClick: (task: TaskWithRelations) => void
   onAddTask: (status: 'todo' | 'in_progress' | 'done') => void
+  readOnly?: boolean
+  currentUserId?: string
 }
 
-export function KanbanColumn({ status, tasks, onTaskClick, onAddTask }: KanbanColumnProps) {
+export function KanbanColumn({ status, tasks, onTaskClick, onAddTask, readOnly, currentUserId }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: status })
 
   return (
@@ -28,9 +30,11 @@ export function KanbanColumn({ status, tasks, onTaskClick, onAddTask }: KanbanCo
           <h3 className="font-semibold text-sm">{STATUS_LABELS[status]}</h3>
           <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">{tasks.length}</span>
         </div>
-        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onAddTask(status)}>
-          <Plus className="h-4 w-4" />
-        </Button>
+        {!readOnly && (
+          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onAddTask(status)}>
+            <Plus className="h-4 w-4" />
+          </Button>
+        )}
       </div>
 
       <div
@@ -42,7 +46,7 @@ export function KanbanColumn({ status, tasks, onTaskClick, onAddTask }: KanbanCo
       >
         <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
           {tasks.map(task => (
-            <TaskCard key={task.id} task={task} onClick={onTaskClick} />
+            <TaskCard key={task.id} task={task} onClick={onTaskClick} currentUserId={currentUserId} />
           ))}
         </SortableContext>
         {tasks.length === 0 && (

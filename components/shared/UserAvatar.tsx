@@ -5,13 +5,14 @@ import type { Profile } from '@/lib/supabase/database.types'
 
 interface UserAvatarProps {
   profile: Pick<Profile, 'full_name' | 'avatar_color'>
-  size?: 'sm' | 'md'
+  size?: 'sm' | 'md' | 'lg'
   showTooltip?: boolean
 }
 
 export function UserAvatar({ profile, size = 'sm', showTooltip = false }: UserAvatarProps) {
+  const sizeClass = size === 'sm' ? 'h-6 w-6 text-xs' : size === 'md' ? 'h-8 w-8 text-sm' : 'h-12 w-12 text-base'
   const avatar = (
-    <Avatar className={size === 'sm' ? 'h-6 w-6 text-xs' : 'h-8 w-8 text-sm'}>
+    <Avatar className={sizeClass}>
       <AvatarFallback style={{ backgroundColor: profile.avatar_color }} className="text-white font-medium">
         {getInitials(profile.full_name)}
       </AvatarFallback>
