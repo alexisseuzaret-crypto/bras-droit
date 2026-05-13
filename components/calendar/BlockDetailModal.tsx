@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { useUpdateBlock, useDeleteBlock, type CalendarBlockWithTask } from '@/lib/queries/calendar'
-import { useUpdateTask } from '@/lib/queries/tasks'
+import { useUpdateTask, useDeleteTask } from '@/lib/queries/tasks'
 import { minutesToDisplay } from '@/lib/utils'
-import { Clock, Trash2 } from 'lucide-react'
+import { Clock, CalendarX, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { format, differenceInMinutes } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -23,6 +23,7 @@ export function BlockDetailModal({ block, open, onClose }: BlockDetailModalProps
   const updateBlock = useUpdateBlock()
   const deleteBlock = useDeleteBlock()
   const updateTask = useUpdateTask()
+  const deleteTask = useDeleteTask()
   const [notes, setNotes] = useState(block?.notes ?? '')
   const [confirmDelete, setConfirmDelete] = useState(false)
 
@@ -41,10 +42,17 @@ export function BlockDetailModal({ block, open, onClose }: BlockDetailModalProps
     onClose()
   }
 
+  async function handleUnschedule() {
+    await deleteBlock.mutateAsync(block!.id)
+    toast.success('Tâche retirée du calendrier')
+    onClose()
+  }
+
   async function handleDelete() {
     if (!confirmDelete) { setConfirmDelete(true); return }
     await deleteBlock.mutateAsync(block!.id)
-    toast.success('Bloc supprimé')
+    await deleteTask.mutateAsync(block!.task_id)
+    toast.success('Tâche supprimée définitivement')
     onClose()
     setConfirmDelete(false)
   }
@@ -69,10 +77,16 @@ export function BlockDetailModal({ block, open, onClose }: BlockDetailModalProps
             <Button className="bg-mia-900 hover:bg-mia-800 text-white" onClick={handleSessionDone}>
               ✓ Session effectuée — enregistrer {minutesToDisplay(duration)}
             </Button>
-            <Button variant={confirmDelete ? 'destructive' : 'ghost'} size="sm" onClick={handleDelete}>
-              <Trash2 className="h-3 w-3 mr-1" />
-              {confirmDelete ? 'Confirmer la suppression' : 'Supprimer le bloc'}
-            </Button>
+            <div className="border-t pt-2 space-y-2">
+              <Button variant="outline" size="sm" className="w-full" onClick={handleUnschedule} disabled={deleteBlock.isPending}>
+                <CalendarX className="h-3 w-3 mr-1.5" />
+                Retirer du calendrier
+              </Button>
+              <Button variant={confirmDelete ? 'destructive' : 'ghost'} size="sm" className="w-full" onClick={handleDelete} disabled={deleteBlock.isPending || deleteTask.isPending}>
+                <Trash2 className="h-3 w-3 mr-1.5" />
+                {confirmDelete ? 'Confirmer — supprimer aussi du Kanban' : 'Supprimer définitivement'}
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>

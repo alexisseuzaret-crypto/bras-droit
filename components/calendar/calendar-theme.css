@@ -1,0 +1,122 @@
+/* FullCalendar theme — Bras Droit */
+
+/* ── Toolbar ─────────────────────────────────────────── */
+.fc .fc-header-toolbar {
+  padding: 10px 16px 10px;
+  background: #E8EAF3;
+  border-bottom: 1px solid #d4d8ec;
+  margin-bottom: 0 !important;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1A203D;
+}
+
+.fc .fc-button {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+
+.fc .fc-button-primary {
+  background-color: transparent;
+  border-color: #c5cae8;
+  color: #323A66;
+}
+
+.fc .fc-button-primary:hover {
+  background-color: #323A66;
+  border-color: #323A66;
+  color: #fff;
+}
+
+.fc .fc-button-primary:not(:disabled):active,
+.fc .fc-button-primary.fc-button-active {
+  background-color: #1A203D !important;
+  border-color: #1A203D !important;
+  color: #fff !important;
+}
+
+.fc .fc-button-primary:focus {
+  box-shadow: 0 0 0 2px #c5cae880;
+}
+
+/* ── Column headers ──────────────────────────────────── */
+.fc .fc-col-header-cell {
+  background: #E8EAF3;
+  border-bottom: 2px solid #c5cae8;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: #1A203D;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  padding: 8px 6px;
+  text-decoration: none;
+}
+
+/* ── Today highlight ─────────────────────────────────── */
+.fc .fc-day-today {
+  background: rgba(92, 107, 170, 0.06) !important;
+}
+
+.fc .fc-day-today .fc-col-header-cell-cushion {
+  color: #5C6BAA;
+}
+
+/* ── Time grid ───────────────────────────────────────── */
+.fc .fc-timegrid-slot {
+  height: 2rem;
+  border-color: rgba(209, 213, 235, 0.5);
+}
+
+.fc .fc-timegrid-slot-minor {
+  border-color: rgba(209, 213, 235, 0.25);
+}
+
+.fc .fc-timegrid-slot-lane:hover {
+  background: rgba(92, 107, 170, 0.05);
+  cursor: pointer;
+}
+
+.fc .fc-timegrid-slot-label-cushion {
+  color: #9ca3af;
+  font-size: 0.6875rem;
+  padding-right: 8px;
+}
+
+/* ── Scrollgrid borders ──────────────────────────────── */
+.fc .fc-scrollgrid {
+  border-color: #d4d8ec;
+}
+
+.fc .fc-scrollgrid td,
+.fc .fc-scrollgrid th {
+  border-color: rgba(209, 213, 235, 0.6);
+}
+
+/* ── Events ──────────────────────────────────────────── */
+.fc .fc-event {
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  font-size: 0.75rem;
+  border-width: 0 0 0 3px;
+  padding: 1px 4px;
+  cursor: pointer;
+}
+
+.fc .fc-event-main {
+  padding: 2px 2px;
+}
+
+.fc .fc-event-title {
+  font-weight: 500;
+}
+
+.fc .fc-event:hover {
+  filter: brightness(0.93);
+}

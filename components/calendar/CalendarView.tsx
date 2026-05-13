@@ -1,5 +1,6 @@
 'use client'
 
+import './calendar-theme.css'
 import { useRef, useState, useCallback } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'

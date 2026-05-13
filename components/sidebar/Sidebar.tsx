@@ -72,7 +72,7 @@ export function Sidebar({ profile }: { profile: Profile }) {
 
         {/* Statut */}
         <div>
-          <p className="text-xs font-semibold text-mia-500 uppercase tracking-wider px-3 mb-1">Statut</p>
+          <p className="text-xs font-semibold text-mia-100/80 uppercase tracking-wider px-3 mb-1">Statut</p>
           {Object.entries(STATUS_LABELS).map(([value, label]) => (
             <SidebarFilter key={value} paramKey="status" paramValue={value} label={label} dot={STATUS_COLORS[value]} />
           ))}
@@ -80,7 +80,7 @@ export function Sidebar({ profile }: { profile: Profile }) {
 
         {/* Priorité */}
         <div>
-          <p className="text-xs font-semibold text-mia-500 uppercase tracking-wider px-3 mb-1">Priorité</p>
+          <p className="text-xs font-semibold text-mia-100/80 uppercase tracking-wider px-3 mb-1">Priorité</p>
           {[1, 2, 3, 4, 5].map(p => (
             <SidebarFilter key={p} paramKey="priority" paramValue={String(p)} label={PRIORITY_LABELS[p]} dot={PRIORITY_COLORS[p]} />
           ))}
@@ -88,7 +88,7 @@ export function Sidebar({ profile }: { profile: Profile }) {
 
         {/* Catégories */}
         <div>
-          <p className="text-xs font-semibold text-mia-500 uppercase tracking-wider px-3 mb-1">Catégories</p>
+          <p className="text-xs font-semibold text-mia-100/80 uppercase tracking-wider px-3 mb-1">Catégories</p>
           {categories.map(cat => (
             <SidebarFilter key={cat.id} paramKey="category" paramValue={cat.id} label={cat.name} dot={cat.color} count={cat.tasks[0]?.count ?? 0} />
           ))}
@@ -96,11 +96,11 @@ export function Sidebar({ profile }: { profile: Profile }) {
 
         {/* Assigné à — groupé par rôle */}
         <div>
-          <p className="text-xs font-semibold text-mia-500 uppercase tracking-wider px-3 mb-1">Assigné à</p>
+          <p className="text-xs font-semibold text-mia-100/80 uppercase tracking-wider px-3 mb-1">Assigné à</p>
           <SidebarFilter paramKey="assignee" paramValue="me" label="Moi" />
           {ROLE_ORDER.filter(role => profilesByRole[role]).map(role => (
             <div key={role}>
-              <p className="text-xs text-mia-400 uppercase tracking-wider px-3 mt-3 mb-1">
+              <p className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 mt-3 mb-1">
                 {ROLE_SECTION_LABELS[role]}
               </p>
               {profilesByRole[role]!.map(p => (
