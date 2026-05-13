@@ -11,6 +11,7 @@ export interface Database {
           avatar_color: string
           role: 'direction' | 'daf' | 'responsable_bu' | 'conseiller_senior' | 'sales' | 'consultant_junior' | 'bras_droit'
           manager_id: string | null
+          must_change_password: boolean
           created_at: string
         }
         Insert: {
@@ -20,6 +21,7 @@ export interface Database {
           avatar_color?: string
           role?: 'direction' | 'daf' | 'responsable_bu' | 'conseiller_senior' | 'sales' | 'consultant_junior' | 'bras_droit'
           manager_id?: string | null
+          must_change_password?: boolean
           created_at?: string
         }
         Update: Partial<Database['bras_droit']['Tables']['profiles']['Insert']>
