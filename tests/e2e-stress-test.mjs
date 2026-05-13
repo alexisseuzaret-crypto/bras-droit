@@ -64,7 +64,7 @@ async function loginPlaywright(page, email, password) {
   await page.fill('input[type="email"]', email)
   await page.fill('input[type="password"]', password)
   await page.click('button[type="submit"]')
-  await page.waitForURL(url => !url.includes('/login'), { timeout: 20000 })
+  await page.waitForURL(url => !url.toString().includes('/login'), { timeout: 20000 })
 }
 
 async function screenshot(page, name) {
@@ -390,7 +390,8 @@ async function run() {
         const newEnd = new Date(new Date(b.end_at).getTime() + 30 * 60 * 1000)
         const { data } = await apiPatch(tokens.martin, 'calendar_blocks', `id=eq.${b.id}`,
           { end_at: newEnd.toISOString() })
-        assert(data[0]?.end_at === newEnd.toISOString(), 'manip',
+        const gotTime = data[0]?.end_at ? new Date(data[0].end_at).getTime() : null
+        assert(gotTime === newEnd.getTime(), 'manip',
           'T13 Bloc end_at mis à jour +30min')
         // Reset
         await apiPatch(tokens.martin, 'calendar_blocks', `id=eq.${b.id}`,
@@ -414,7 +415,8 @@ async function run() {
         const newEnd = new Date(newStart.getTime() + dur)
         const { data } = await apiPatch(tokens.martin, 'calendar_blocks', `id=eq.${b.id}`,
           { start_at: newStart.toISOString(), end_at: newEnd.toISOString() })
-        assert(data[0]?.start_at === newStart.toISOString(), 'manip',
+        const gotStartTime = data[0]?.start_at ? new Date(data[0].start_at).getTime() : null
+        assert(gotStartTime === newStart.getTime(), 'manip',
           'T14 Bloc déplacé +1 jour (start_at mis à jour)')
         await apiPatch(tokens.martin, 'calendar_blocks', `id=eq.${b.id}`,
           { start_at: b.start_at, end_at: b.end_at })
@@ -632,8 +634,9 @@ async function run() {
       await page.goto(`${APP_URL}/admin/users`, { waitUntil: 'domcontentloaded' })
       await page.waitForTimeout(2000)
       assert(!page.url().includes('/login'), 'manip', 'T23.1 Direction accède à /admin/users')
-      const hasTable = await page.locator('table, [role="table"]').isVisible({ timeout: 3000 }).catch(() => false)
-      assert(hasTable, 'manip', 'T23.2 Tableau users rendu')
+      // UsersTable renders cards (div.rounded-lg.border), not a <table>
+      const hasTable = await page.locator('text=Martin').first().isVisible({ timeout: 8000 }).catch(() => false)
+      assert(hasTable, 'manip', 'T23.2 Liste users rendue (nom visible)')
       await screenshot(page, 'T23-admin-users')
       // Vérifier modification de rôle via API (sans passer par l'UI pour éviter les side-effects)
       const { data: beforeData } = await apiPatch(tokens.martin, 'profiles',
@@ -651,12 +654,10 @@ async function run() {
       const page2 = await ctx2.newPage()
 
       // Login as Adel (must_change_password=true)
-      await page2.goto(`${APP_URL}/login`, { waitUntil: 'domcontentloaded' })
-      await page2.waitForSelector('input[type="email"]', { timeout: 10000 })
-      await page2.fill('input[type="email"]', 'adel.dghim@mister-ia.com')
-      await page2.fill('input[type="password"]', 'Adel@MIA26')
-      await page2.click('button[type="submit"]')
-      await page2.waitForURL(url => !url.includes('/login'), { timeout: 15000 })
+      await loginPlaywright(page2, 'adel.dghim@mister-ia.com', 'Adel@MIA26')
+      // After login, layout.tsx detects must_change_password=true → redirect /change-password
+      // waitForURL already handled navigating off /login; now wait for final destination
+      await page2.waitForURL(url => url.toString().includes('/change-password') || url.toString().includes('/kanban'), { timeout: 15000 })
 
       const redirectUrl = page2.url()
       assert(redirectUrl.includes('/change-password'), 'manip',
@@ -670,7 +671,7 @@ async function run() {
         await page2.fill('input#password', newPwd)
         await page2.fill('input#confirm', newPwd)
         await page2.click('button[type="submit"]')
-        await page2.waitForURL(url => url.includes('/kanban'), { timeout: 15000 })
+        await page2.waitForURL(url => url.toString().includes('/kanban'), { timeout: 15000 })
 
         assert(page2.url().includes('/kanban'), 'manip',
           'T24.2 Après changement mdp → redirigé /kanban')
