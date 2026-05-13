@@ -23,18 +23,10 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
-
-  const { pathname } = request.nextUrl
-  const isAuthRoute = ['/login', '/signup'].some(r => pathname.startsWith(r))
-
-  if (!user && !isAuthRoute) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    const redirectResponse = NextResponse.redirect(url)
-    supabaseResponse.cookies.getAll().forEach(c => redirectResponse.cookies.set(c))
-    return redirectResponse
-  }
+  // Refresh session only — no redirects.
+  // Auth guards live in (app)/layout.tsx (authenticated) and (auth)/login/page.tsx (already logged in).
+  // Middleware redirects caused a loop: Edge Runtime getUser() behavior differs from Node.js runtime.
+  await supabase.auth.getUser()
 
   return supabaseResponse
 }
