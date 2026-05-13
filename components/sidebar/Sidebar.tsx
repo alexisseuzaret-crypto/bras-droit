@@ -17,7 +17,7 @@ export function Sidebar({ profile }: { profile: Profile }) {
   const { data: categories = [] } = useCategoriesWithCount()
   const { data: profiles = [] } = useAllProfiles()
 
-  const canSeeOverview = ['direction', 'conseiller_senior'].includes(profile.role)
+  const canSeeOverview = ['direction', 'daf', 'conseiller_senior'].includes(profile.role)
   const canSeeAdmin = profile.role === 'direction'
 
   const navItems = [

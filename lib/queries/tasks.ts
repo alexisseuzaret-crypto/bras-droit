@@ -9,6 +9,7 @@ export interface TaskFilters {
   category?: string
   assignee?: string
   userId?: string
+  mine?: boolean
 }
 
 export function useTasks(filters: TaskFilters = {}) {
@@ -26,7 +27,9 @@ export function useTasks(filters: TaskFilters = {}) {
       if (filters.status) q = q.eq('status', filters.status as 'todo' | 'in_progress' | 'done')
       if (filters.priority) q = q.eq('priority', parseInt(filters.priority))
       if (filters.category) q = q.eq('category_id', filters.category)
-      if (filters.assignee === 'me' && filters.userId) {
+      if (filters.mine && filters.userId) {
+        q = q.or(`assignee_id.eq.${filters.userId},creator_id.eq.${filters.userId}`)
+      } else if (filters.assignee === 'me' && filters.userId) {
         q = q.eq('assignee_id', filters.userId)
       } else if (filters.assignee && filters.assignee !== 'me') {
         q = q.eq('assignee_id', filters.assignee)

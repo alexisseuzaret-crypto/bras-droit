@@ -13,11 +13,15 @@ import type { Role } from '@/lib/supabase/database.types'
 
 const ROLE_LABELS: Record<Role, string> = {
   direction: 'Direction',
-  conseiller_senior: 'Conseiller senior',
+  daf: 'DAF',
   responsable_bu: 'Responsable BU',
+  conseiller_senior: 'Conseiller senior',
   sales: 'Sales',
+  consultant_junior: 'Consultant junior',
   bras_droit: 'Bras droit',
 }
+
+const ROLES_WITH_MANAGER: Role[] = ['bras_droit', 'consultant_junior', 'sales']
 
 interface ManagerOption {
   id: string
@@ -35,7 +39,7 @@ export default function SignupPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    if (role !== 'bras_droit') return
+    if (!ROLES_WITH_MANAGER.includes(role)) return
     supabase
       .from('profiles')
       .select('id, full_name')
@@ -56,7 +60,7 @@ export default function SignupPage() {
         data: {
           full_name: fullName,
           role,
-          manager_id: role === 'bras_droit' ? managerId : null,
+          manager_id: ROLES_WITH_MANAGER.includes(role) ? managerId : null,
         },
       },
     })
@@ -106,7 +110,7 @@ export default function SignupPage() {
                 </SelectContent>
               </Select>
             </div>
-            {role === 'bras_droit' && (
+            {ROLES_WITH_MANAGER.includes(role) && (
               <div className="space-y-2">
                 <Label>Manager</Label>
                 <Select value={managerId ?? ''} onValueChange={v => setManagerId(v || null)}>

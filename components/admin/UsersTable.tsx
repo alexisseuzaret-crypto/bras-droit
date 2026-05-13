@@ -9,9 +9,11 @@ import { toast } from 'sonner'
 
 const ROLE_LABELS: Record<Role, string> = {
   direction: 'Direction',
-  conseiller_senior: 'Conseiller senior',
+  daf: 'DAF',
   responsable_bu: 'Responsable BU',
+  conseiller_senior: 'Conseiller senior',
   sales: 'Sales',
+  consultant_junior: 'Consultant junior',
   bras_droit: 'Bras droit',
 }
 
@@ -43,7 +45,7 @@ export function UsersTable() {
   return (
     <div className="space-y-2">
       {users.map(user => {
-        const managerOptions = users.filter(u => u.role !== 'bras_droit' && u.id !== user.id)
+        const managerOptions = users.filter(u => !['bras_droit', 'consultant_junior'].includes(u.role) && u.id !== user.id)
         return (
           <div key={user.id} className="flex items-center gap-4 p-4 rounded-lg border bg-card flex-wrap">
             <UserAvatar profile={user} size="md" />

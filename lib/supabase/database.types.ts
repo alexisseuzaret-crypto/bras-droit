@@ -9,7 +9,7 @@ export interface Database {
           email: string
           full_name: string
           avatar_color: string
-          role: 'direction' | 'conseiller_senior' | 'responsable_bu' | 'sales' | 'bras_droit'
+          role: 'direction' | 'daf' | 'responsable_bu' | 'conseiller_senior' | 'sales' | 'consultant_junior' | 'bras_droit'
           manager_id: string | null
           created_at: string
         }
@@ -18,7 +18,7 @@ export interface Database {
           email: string
           full_name: string
           avatar_color?: string
-          role?: 'direction' | 'conseiller_senior' | 'responsable_bu' | 'sales' | 'bras_droit'
+          role?: 'direction' | 'daf' | 'responsable_bu' | 'conseiller_senior' | 'sales' | 'consultant_junior' | 'bras_droit'
           manager_id?: string | null
           created_at?: string
         }

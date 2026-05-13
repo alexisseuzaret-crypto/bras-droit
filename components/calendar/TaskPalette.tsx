@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/shared/EmptyState'
 
 export function TaskPalette() {
   const { data: profile } = useCurrentProfile()
-  const { data: tasks = [] } = useTasks({ userId: profile?.id, assignee: 'me' })
+  const { data: tasks = [] } = useTasks({ userId: profile?.id, mine: true })
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
