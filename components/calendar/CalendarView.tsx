@@ -11,9 +11,10 @@ import { useCurrentProfile } from '@/lib/queries/profiles'
 import { BlockDetailModal } from './BlockDetailModal'
 import { toast } from 'sonner'
 
-export function CalendarView() {
+export function CalendarView({ userId: overrideUserId }: { userId?: string } = {}) {
   const { data: profile } = useCurrentProfile()
-  const { data: blocks = [] } = useCalendarBlocks(profile?.id)
+  const effectiveUserId = overrideUserId ?? profile?.id
+  const { data: blocks = [] } = useCalendarBlocks(effectiveUserId)
   const createBlock = useCreateBlock()
   const updateBlock = useUpdateBlock()
   const [selectedBlock, setSelectedBlock] = useState<CalendarBlockWithTask | null>(null)

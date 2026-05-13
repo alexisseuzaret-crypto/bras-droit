@@ -8,9 +8,12 @@ import { PriorityBadge } from '@/components/task/PriorityBadge'
 import { minutesToDisplay } from '@/lib/utils'
 import { EmptyState } from '@/components/shared/EmptyState'
 
-export function TaskPalette() {
+export function TaskPalette({ userId: overrideUserId }: { userId?: string } = {}) {
   const { data: profile } = useCurrentProfile()
-  const { data: tasks = [] } = useTasks({ userId: profile?.id, mine: true })
+  const taskFilters = overrideUserId
+    ? { assignee: overrideUserId }
+    : { userId: profile?.id, mine: true }
+  const { data: tasks = [] } = useTasks(taskFilters)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {

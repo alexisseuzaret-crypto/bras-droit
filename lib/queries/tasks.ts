@@ -32,7 +32,7 @@ export function useTasks(filters: TaskFilters = {}) {
       } else if (filters.assignee === 'me' && filters.userId) {
         q = q.eq('assignee_id', filters.userId)
       } else if (filters.assignee && filters.assignee !== 'me') {
-        q = q.eq('assignee_id', filters.assignee)
+        q = q.or(`creator_id.eq.${filters.assignee},assignee_id.eq.${filters.assignee}`)
       }
 
       const { data, error } = await q

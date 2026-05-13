@@ -2,14 +2,26 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutGrid, Calendar, BarChart2, Settings, ListTodo, Users } from 'lucide-react'
+import { LayoutGrid, Calendar, BarChart2, Settings, ListTodo } from 'lucide-react'
 import { SidebarFilter } from './SidebarFilter'
 import { SidebarFooter } from './SidebarFooter'
 import { cn } from '@/lib/utils'
 import { useCategoriesWithCount } from '@/lib/queries/categories'
 import { useAllProfiles } from '@/lib/queries/profiles'
 import { STATUS_LABELS, STATUS_COLORS, PRIORITY_LABELS, PRIORITY_COLORS } from '@/lib/constants'
-import type { Profile } from '@/lib/supabase/database.types'
+import type { Profile, Role } from '@/lib/supabase/database.types'
+
+const ROLE_ORDER: Role[] = ['direction', 'daf', 'responsable_bu', 'conseiller_senior', 'sales', 'consultant_junior', 'bras_droit']
+
+const ROLE_SECTION_LABELS: Record<Role, string> = {
+  direction: 'Direction',
+  daf: 'DAF',
+  responsable_bu: 'Responsables BU',
+  conseiller_senior: 'Conseillers seniors',
+  sales: 'Sales',
+  consultant_junior: 'Consultants juniors',
+  bras_droit: 'Bras droits',
+}
 
 export function Sidebar({ profile }: { profile: Profile }) {
   const pathname = usePathname()
@@ -28,6 +40,12 @@ export function Sidebar({ profile }: { profile: Profile }) {
   ]
 
   const otherProfiles = profiles.filter(p => p.id !== profile.id)
+
+  const profilesByRole = ROLE_ORDER.reduce((acc, role) => {
+    const group = otherProfiles.filter(p => p.role === role)
+    if (group.length) acc[role] = group
+    return acc
+  }, {} as Partial<Record<Role, Profile[]>>)
 
   return (
     <aside className="w-[280px] flex-shrink-0 bg-mia-900 flex flex-col h-screen">
@@ -76,39 +94,21 @@ export function Sidebar({ profile }: { profile: Profile }) {
           ))}
         </div>
 
-        {/* Assigné à */}
+        {/* Assigné à — groupé par rôle */}
         <div>
           <p className="text-xs font-semibold text-mia-500 uppercase tracking-wider px-3 mb-1">Assigné à</p>
           <SidebarFilter paramKey="assignee" paramValue="me" label="Moi" />
-          {otherProfiles.map(p => (
-            <SidebarFilter key={p.id} paramKey="assignee" paramValue={p.id} label={p.full_name} />
+          {ROLE_ORDER.filter(role => profilesByRole[role]).map(role => (
+            <div key={role}>
+              <p className="text-xs text-mia-400 uppercase tracking-wider px-3 mt-3 mb-1">
+                {ROLE_SECTION_LABELS[role]}
+              </p>
+              {profilesByRole[role]!.map(p => (
+                <SidebarFilter key={p.id} paramKey="assignee" paramValue={p.id} label={p.full_name} />
+              ))}
+            </div>
           ))}
         </div>
-
-        {/* Équipe (visible pour direction + conseiller_senior) */}
-        {canSeeOverview && otherProfiles.length > 0 && (
-          <div>
-            <p className="text-xs font-semibold text-mia-500 uppercase tracking-wider px-3 mb-1">Équipe</p>
-            {otherProfiles.map(p => (
-              <Link
-                key={p.id}
-                href={`/team/${p.id}`}
-                className={cn(
-                  'flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors',
-                  pathname === `/team/${p.id}` ? 'bg-mia-700 text-white' : 'text-white/70 hover:bg-mia-800 hover:text-white'
-                )}
-              >
-                <span
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium text-white flex-shrink-0"
-                  style={{ backgroundColor: p.avatar_color }}
-                >
-                  {p.full_name.charAt(0).toUpperCase()}
-                </span>
-                <span className="truncate">{p.full_name}</span>
-              </Link>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Navigation */}
